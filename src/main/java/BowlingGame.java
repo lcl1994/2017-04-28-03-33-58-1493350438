@@ -4,20 +4,12 @@ import java.util.List;
 public class BowlingGame {
 
     public int getBowlingScore(String bowlingCode) {
-        // 通过||切分
-        String[] isPlusArray = bowlingCode.split("\\|\\|");
-        String[] basicCodeArray = isPlusArray[0].split("\\|");
-        if (isPlusArray.length > 1) {
-            String plusCode = isPlusArray[1];
-        } else {
-            String plusCode = "--";
-        }
+        String[] basicCodeArray = bowlingCode.replace("||", "|").split("\\|");
 
         // 通过|切分并且获取每一个的分数
-//        ArrayList<ArrayList<Integer>> = new ArrayList<ArrayList<Integer>>();
-
-        List<Integer> codeList = new ArrayList<Integer>();
+        List<List> codeListList = new ArrayList<List>();
         for (String singleCode : basicCodeArray) {
+            List<Integer> codeList = new ArrayList<Integer>();
             String[] singleCharArray = singleCode.split("");
             for (String singleChar : singleCharArray) {
                 if ("X".equals(singleChar)) {
@@ -30,32 +22,34 @@ public class BowlingGame {
                     codeList.add(Integer.parseInt(singleChar));
                 }
             }
+            codeListList.add(codeList);
         }
+
 
         // 逐个分析得分
-        for (String singleCode : basicCodeArray) {
+        Integer allCode = 0;
+        for (int i = 0; i < 10; i++) {
+            String singleCode = basicCodeArray[i];
+            List<Integer> scoreList = codeListList.get(i);
             Integer code;
             if (singleCode.contains("X")) {
-                code = 10 + 1 + 2;
+                List<Integer> scoreNextList = codeListList.get(i + 1);
+                if (scoreNextList.size() == 2) {
+                    code = 10 + scoreNextList.get(0) + scoreNextList.get(1);
+                } else {
+                    List<Integer> scoreNextNextList = codeListList.get(i + 2);
+                    code = 10 + scoreNextList.get(0) + scoreNextNextList.get(0);
+                }
             } else if (singleCode.contains("/")) {
-                code = 10 + 4;
+                List<Integer> scoreNextList = codeListList.get(i + 1);
+                code = 10 + scoreNextList.get(0);
             } else {
-                code = 1 + 5;
+                code = scoreList.get(0) + scoreList.get(1);
             }
-            System.out.println(code);
-
+            allCode += code;
         }
-        System.out.println(codeList);
 
 
-        return 0;
-    }
-
-    public static void main(String[] args) {
-        BowlingGame bg = new BowlingGame();
-//        bg.getBowlingScore("5/|5/|5/|5/|5/|5/|5/|5/|5/|5/||5");
-//        bg.getBowlingScore("X|X|X|X|X|X|X|X|X|X||XX");
-//        bg.getBowlingScore("9-|9-|9-|9-|9-|9-|9-|9-|9-|9-||");
-        bg.getBowlingScore("2/|2/|5/|5/|5/|5/|5/|5/|5/|5/||5");
+        return allCode;
     }
 }
